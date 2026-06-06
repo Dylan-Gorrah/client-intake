@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Let's build your site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#141513;--card:#1c1d19;
+    --line:rgba(236,232,221,0.07);--line-2:rgba(236,232,221,0.14);
+    --ink:#ece8dd;--dim:#a6a294;--faint:#6f6c61;
+    --accent:#a3c57d;--soft:rgba(163,197,125,0.13);--edge:rgba(163,197,125,0.42);
+    --serif:'Fraunces',Georgia,serif;--sans:'Instrument Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.018;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:0 20px 130px}
+
+  .rail{position:fixed;top:0;left:0;right:0;height:2px;z-index:50}
+  .rail span{display:block;height:100%;width:0;background:var(--accent);transition:width .35s ease}
+  .hearts{position:fixed;inset:0;z-index:80;pointer-events:none;overflow:hidden}
+  .heart{position:absolute;bottom:-46px;opacity:0}
+  .heart svg{width:100%;height:100%;fill:var(--ink);filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+
+  /* sticky minimal progress */
+  .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 0;background:linear-gradient(var(--bg),var(--bg) 70%,transparent)}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+  .counter{font-size:12px;color:var(--faint);font-feature-settings:"tnum"}
+  .counter b{display:inline-block;color:var(--accent);transition:color .3s}
+  .counter b.bump{animation:bump .4s ease}
+
+  header{padding:34px 0 6px}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,13vw,62px);line-height:0.96;letter-spacing:-.03em}
+  h1 em{font-style:italic;color:var(--accent);transition:color .3s}
+  .sub{margin-top:14px;color:var(--dim);font-size:15px}
+
+  .deck{margin-top:36px;display:flex;flex-direction:column;gap:10px}
+  .q{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 20px 24px;transition:opacity .5s,transform .5s,border-color .3s}
+  .q.pre{opacity:0;transform:translateY(12px)}
+  .q.pre.in{opacity:1;transform:translateY(0)}
+  .q.done{border-color:var(--edge)}
+  .q.pulse{animation:cardPulse .7s ease}
+  .qhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .num{font-family:var(--serif);font-size:12px;color:var(--faint);min-width:18px;font-feature-settings:"tnum"}
+  .q.done .num{color:var(--accent)}
+  .tick{width:16px;height:16px;border-radius:50%;background:var(--accent);display:grid;place-items:center;opacity:0;transform:scale(0);margin-left:-3px}
+  .tick svg{width:10px;height:10px;stroke:#16170f;stroke-width:3}
+  .q.done .tick{animation:pop .5s cubic-bezier(.2,1.3,.4,1) forwards}
+  .qtitle{font-family:var(--serif);font-size:18px;font-weight:400;letter-spacing:-.01em;line-height:1.25;flex:1}
+  .qhint{color:var(--faint);font-size:13px;margin:-8px 0 14px;padding-left:28px}
+
+  .field{padding-left:28px}
+  textarea,input[type=text]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:var(--sans);font-size:16px;padding:12px 13px;resize:vertical;transition:border-color .25s}
+  textarea{min-height:74px}
+  textarea:focus,input:focus{outline:none;border-color:var(--edge)}
+  textarea::placeholder,input::placeholder{color:var(--faint)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid var(--line);background:transparent;color:var(--dim);padding:10px 15px;border-radius:100px;font-size:14px;cursor:pointer;font-family:var(--sans);transition:border-color .2s,color .2s,background .2s;-webkit-tap-highlight-color:transparent}
+  .chip:active{transform:scale(.96)}
+  .chip.on{background:var(--soft);border-color:var(--edge);color:var(--accent)}
+  .chip.popping{animation:chipPop .35s ease}
+
+  .cond{max-height:0;opacity:0;overflow:hidden;transition:max-height .45s ease,opacity .35s ease,margin-top .35s ease}
+  .cond.show{max-height:90px;opacity:1;margin-top:12px}
+
+  .taglist{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .taglist:empty{display:none}
+  .tag{display:inline-flex;align-items:center;gap:8px;background:var(--soft);border:1px solid var(--edge);color:var(--accent);padding:7px 9px 7px 13px;border-radius:100px;font-size:14px;animation:chipPop .3s ease}
+  .tag button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:15px;line-height:1;padding:0;opacity:.7}
+
+  .swatches{display:flex;flex-wrap:wrap;gap:14px}
+  .pick{display:flex;flex-direction:column;gap:7px}
+  .pick label{font-size:11.5px;color:var(--dim)}
+  .picker{position:relative;width:58px;height:58px;border-radius:12px;overflow:hidden;border:1px solid var(--line-2);cursor:pointer}
+  .picker input[type=color]{position:absolute;inset:-8px;width:140%;height:140%;border:none;padding:0;cursor:pointer;background:transparent}
+  .hexlabel{font-size:11px;color:var(--faint);text-transform:uppercase;font-feature-settings:"tnum"}
+  .livehint{margin-top:13px;font-size:12px;color:var(--faint)}
+
+  .sliders{display:flex;flex-direction:column;gap:20px}
+  .ends{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-bottom:10px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;background:var(--line-2);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--card);border:3px solid var(--accent);cursor:pointer;transition:transform .15s}
+  input[type=range]::-webkit-slider-thumb:active{transform:scale(1.2)}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--card);border:3px solid var(--accent);cursor:pointer}
+
+  /* sticky submit dock */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:45;padding:16px 20px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 28%)}
+  .dock-inner{max-width:600px;margin:0 auto}
+  .submit{appearance:none;border:none;width:100%;cursor:pointer;font-family:var(--sans);font-weight:500;font-size:16px;color:#16170f;background:var(--accent);padding:16px;border-radius:100px;display:flex;align-items:center;justify-content:center;gap:9px;transition:opacity .3s,background .3s,transform .15s}
+  .submit svg{width:18px;height:18px;stroke:#16170f}
+  .submit:active{transform:scale(.99)}
+  .submit.locked{background:var(--card);color:var(--faint);border:1px solid var(--line);cursor:not-allowed}
+  .submit.locked svg{display:none}
+
+  .done{display:none;text-align:center;padding:90px 0 40px}
+  .done.show{display:block;animation:rise .5s ease both}
+  .bubble{display:inline-flex;flex-direction:column;align-items:center;gap:9px;background:var(--card);border:1px solid var(--edge);color:var(--ink);padding:15px 22px;border-radius:22px 22px 22px 7px;margin:0 auto 24px;font-size:15px;animation:pop .6s cubic-bezier(.2,1.3,.4,1) both;animation-delay:.1s}
+  .bubble .hrow{display:inline-flex;gap:5px}
+  .bubble .hrow svg{width:17px;height:17px;fill:var(--ink)}
+  .bubble span{color:var(--dim);font-size:13.5px}
+  .done .ring{width:74px;height:74px;border-radius:50%;margin:0 auto 22px;display:grid;place-items:center;background:var(--soft);border:1px solid var(--edge);animation:pop .6s cubic-bezier(.2,1.3,.4,1) both}
+  .done .ring svg{width:32px;height:32px;stroke:var(--accent)}
+  .done h2{font-family:var(--serif);font-weight:400;font-size:30px;letter-spacing:-.02em}
+  .done p{color:var(--dim);margin-top:12px;max-width:38ch;margin-inline:auto}
+  .dump{margin-top:24px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;font-size:12px;color:var(--dim);max-height:260px;overflow:auto;white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;display:none}
+  .ghost{margin-top:16px;background:transparent;border:1px solid var(--line-2);color:var(--dim);padding:11px 22px;border-radius:100px;font-size:14px;cursor:pointer;font-family:var(--sans)}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pop{0%{transform:scale(0) rotate(-25deg);opacity:0}60%{transform:scale(1.2) rotate(6deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+  @keyframes cardPulse{0%{box-shadow:0 0 0 0 var(--edge)}45%{box-shadow:0 0 0 4px var(--soft)}100%{box-shadow:0 0 0 0 transparent}}
+  @keyframes chipPop{0%{transform:scale(.9)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+  @keyframes floatUp{0%{opacity:0;transform:translate(0,0) scale(.5) rotate(0)}14%{opacity:.95}100%{opacity:0;transform:translate(var(--x),-108vh) scale(1.05) rotate(var(--r))}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media(max-width:520px){.wrap{padding:0 16px 130px}.q{padding:20px 16px 22px}.qhint,.field{padding-left:0}.picker{width:52px;height:52px}}
+</style>
+</head>
+<body>
+<div class="rail"><span id="bar"></span></div>
+<div class="hearts" id="hearts"></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <span class="eyebrow">Project brief</span>
+    <span class="counter"><b id="ans">0</b> / 9</span>
+  </div>
+
+  <header>
+    <h1>Your <em>vibe</em>.</h1>
+    <p class="sub">Nine quick questions. No wrong answers.</p>
+  </header>
+
+  <div id="form" class="deck">
+
+    <div class="q" data-key="1">
+      <div class="qhead"><span class="num">01</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">What does your business do?</span></div>
+      <p class="qhint">Like you'd tell a mate who has no idea.</p>
+      <div class="field"><textarea name="what" placeholder="We..."></textarea></div>
+    </div>
+
+    <div class="q" data-key="2">
+      <div class="qhead"><span class="num">02</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">Who's your target?</span></div>
+      <p class="qhint">What kinds of people are looking for you?</p>
+      <div class="field"><textarea name="audience" placeholder="People who..."></textarea></div>
+    </div>
+
+    <div class="q" data-key="3">
+      <div class="qhead"><span class="num">03</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">What should be easy for them?</span></div>
+      <p class="qhint">Pick what fits. More than one is fine.</p>
+      <div class="field">
+        <div class="chips" data-multi="goal">
+          <div class="chip" data-v="Contact me easily">Contact me easily</div>
+          <div class="chip" data-v="Find my location">Find my location</div>
+          <div class="chip" data-v="Book or enquire">Book or enquire</div>
+          <div class="chip" data-v="Buy something">Buy something</div>
+          <div class="chip" data-v="See my work">See my work</div>
+          <div class="chip" data-v="Just browse and trust me">Just browse and trust me</div>
+        </div>
+        <div class="cond" id="locWrap"><input type="text" name="location" placeholder="Where are you based? (address or area)"></div>
+      </div>
+    </div>
+
+    <div class="q" data-key="4">
+      <div class="qhead"><span class="num">04</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">List the things you offer.</span></div>
+      <p class="qhint">Type one and press enter. Add as many as you like.</p>
+      <div class="field">
+        <div class="taglist" id="offerTags"></div>
+        <input type="text" id="offerInput" placeholder="e.g. Haircuts, then enter">
+      </div>
+    </div>
+
+    <div class="q" data-key="5">
+      <div class="qhead"><span class="num">05</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">Your colours.</span></div>
+      <p class="qhint">Tap a swatch and watch this page shift to match.</p>
+      <div class="field">
+        <div class="swatches">
+          <div class="pick"><label>Main</label><div class="picker"><input type="color" data-color="c1" value="#a3c57d"></div><span class="hexlabel" id="hex-c1">#a3c57d</span></div>
+          <div class="pick"><label>Second</label><div class="picker"><input type="color" data-color="c2" value="#1c1d19"></div><span class="hexlabel" id="hex-c2">#1c1d19</span></div>
+          <div class="pick"><label>Accent</label><div class="picker"><input type="color" data-color="c3" value="#ece8dd"></div><span class="hexlabel" id="hex-c3">#ece8dd</span></div>
+        </div>
+        <p class="livehint">The Main colour is steering this whole form. Make it yours.</p>
+      </div>
+    </div>
+
+    <div class="q" data-key="6">
+      <div class="qhead"><span class="num">06</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">If your site walked into a room...</span></div>
+      <p class="qhint">how would it carry itself?</p>
+      <div class="field"><div class="chips" data-multi="vibe">
+        <div class="chip" data-v="Calm and clean">Calm and clean</div>
+        <div class="chip" data-v="Bold and loud">Bold and loud</div>
+        <div class="chip" data-v="High-end and fancy">High-end and fancy</div>
+        <div class="chip" data-v="Warm and friendly">Warm and friendly</div>
+        <div class="chip" data-v="Sharp and modern">Sharp and modern</div>
+        <div class="chip" data-v="Earthy and natural">Earthy and natural</div>
+        <div class="chip" data-v="Playful and fun">Playful and fun</div>
+        <div class="chip" data-v="Quiet and minimal">Quiet and minimal</div>
+      </div></div>
+    </div>
+
+    <div class="q" data-key="7">
+      <div class="qhead"><span class="num">07</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">Where does it sit?</span></div>
+      <p class="qhint">Drag each one. Minimal means straight to the point, maximal means it can get wordy.</p>
+      <div class="field"><div class="sliders">
+        <div><div class="ends"><span>Minimal</span><span>Maximal</span></div><input type="range" min="0" max="100" value="35" data-slider="density"></div>
+        <div><div class="ends"><span>Playful</span><span>Serious</span></div><input type="range" min="0" max="100" value="55" data-slider="tone"></div>
+        <div><div class="ends"><span>Classic</span><span>Modern</span></div><input type="range" min="0" max="100" value="70" data-slider="era"></div>
+        <div><div class="ends"><span>Rich</span><span>Tech</span></div><input type="range" min="0" max="100" value="50" data-slider="rich"></div>
+        <div><div class="ends"><span>Bright</span><span>Moody</span></div><input type="range" min="0" max="100" value="50" data-slider="mood"></div>
+      </div></div>
+    </div>
+
+    <div class="q" data-key="8">
+      <div class="qhead"><span class="num">08</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">Anything you love or hate?</span></div>
+      <p class="qhint">Hating a site that talks too much, loving sharp edges and smooth motion. Animation hints welcome.</p>
+      <div class="field"><textarea name="refs" placeholder="Love: sharp cards, smooth fades...   Avoid: clutter, too much text..."></textarea></div>
+    </div>
+
+    <div class="q" data-key="9">
+      <div class="qhead"><span class="num">09</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="qtitle">Your contact details.</span></div>
+      <p class="qhint">Should your WhatsApp number show on the site, or stay private?</p>
+      <div class="field">
+        <div class="chips" data-multi="reach" style="margin-bottom:14px">
+          <div class="chip on" data-v="Show WhatsApp on site">Show WhatsApp on site</div>
+          <div class="chip" data-v="Keep it private">Keep it private</div>
+        </div>
+        <input type="text" name="name" placeholder="Your name" style="margin-bottom:12px">
+        <input type="text" name="contact" placeholder="WhatsApp number">
+      </div>
+    </div>
+
+  </div>
+
+  <div class="done" id="done">
+    <div class="bubble">
+      <div class="hrow">
+        <svg viewBox="0 0 24 24"><path d="M12 21C12 21 4 14.5 4 9C4 6.2 6.2 4 9 4C10.6 4 12 4.9 12 4.9C12 4.9 13.4 4 15 4C17.8 4 20 6.2 20 9C20 14.5 12 21 12 21Z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 21C12 21 4 14.5 4 9C4 6.2 6.2 4 9 4C10.6 4 12 4.9 12 4.9C12 4.9 13.4 4 15 4C17.8 4 20 6.2 20 9C20 14.5 12 21 12 21Z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 21C12 21 4 14.5 4 9C4 6.2 6.2 4 9 4C10.6 4 12 4.9 12 4.9C12 4.9 13.4 4 15 4C17.8 4 20 6.2 20 9C20 14.5 12 21 12 21Z"/></svg>
+      </div>
+      <span>Thanks for sharing your vibe</span>
+    </div>
+    <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h2>Got it, thank you.</h2>
+    <p>Your brief is in. I'll build a demo that fits the vibe and get back to you.</p>
+    <pre class="dump" id="dump"></pre>
+    <button class="ghost" id="copyBtn" style="display:none">Copy my answers</button>
+  </div>
+</div>
+
+<div class="dock" id="dock"><div class="dock-inner">
+  <button type="button" class="submit locked" id="submitBtn" disabled>
+    <span id="btnText">Answer everything to send</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </button>
+</div></div>
+
+<script>
+/* ============================================================
+   SUPABASE CONFIG  —  fill these two in, then it sends live.
+   Leave blank and submit shows a copyable answer dump instead.
+
+   Run once in the Supabase SQL editor:
+     create table if not exists public.intake_responses (
+       id uuid primary key default gen_random_uuid(),
+       created_at timestamptz default now(),
+       data jsonb not null
+     );
+     alter table public.intake_responses enable row level security;
+     create policy "anon insert" on public.intake_responses
+       for insert to anon with check (true);
+   ============================================================ */
+const SUPABASE_URL="https://durnwcrthdvjggxwqlsc.supabase.co";const SUPABASE_KEY="sb_publishable_qCnhvcObwpu0EBcJ_dcFjg_2JKc9Baf";const TABLE="intake_responses";
+
+const form=document.getElementById('form');
+
+/* live theming */
+function hexToRgba(hex,a){const h=hex.replace('#','');return `rgba(${parseInt(h.substr(0,2),16)},${parseInt(h.substr(2,2),16)},${parseInt(h.substr(4,2),16)},${a})`;}
+function applyTheme(hex){const r=document.documentElement.style;r.setProperty('--accent',hex);r.setProperty('--soft',hexToRgba(hex,0.13));r.setProperty('--edge',hexToRgba(hex,0.42));}
+
+/* reveal (observer + focus + timeout fallback, never gets stuck hidden) */
+const cards=[...document.querySelectorAll('.q')];
+function reveal(c){c&&c.classList.add('in');}
+if('IntersectionObserver' in window){
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){reveal(e.target);io.unobserve(e.target);}});},{threshold:0.05,rootMargin:'0px 0px -6% 0px'});
+  cards.forEach(c=>{c.classList.add('pre');io.observe(c);});
+  setTimeout(()=>cards.forEach(reveal),2600);
+}else{cards.forEach(reveal);}
+document.addEventListener('focusin',e=>{reveal(e.target.closest('.q'));});
+
+/* progress rail */
+const bar=document.getElementById('bar');
+addEventListener('scroll',()=>{const h=document.documentElement;bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight||1)*100)+'%';});
+
+/* chips */
+document.querySelectorAll('.chips').forEach(group=>{
+  const single=group.dataset.multi==='reach';
+  group.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      if(single){group.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));chip.classList.add('on');}
+      else chip.classList.toggle('on');
+      chip.classList.remove('popping');void chip.offsetWidth;chip.classList.add('popping');
+      if(group.dataset.multi==='goal'){
+        const loc=[...group.querySelectorAll('.chip.on')].some(c=>c.dataset.v==='Find my location');
+        document.getElementById('locWrap').classList.toggle('show',loc);
+      }
+      evaluate();
+    });
+  });
+});
+
+/* colors */
+document.querySelectorAll('input[type=color]').forEach(inp=>{
+  const lab=document.getElementById('hex-'+inp.dataset.color);
+  inp.addEventListener('input',()=>{lab.textContent=inp.value;if(inp.dataset.color==='c1')applyTheme(inp.value);inp.dataset.touched='1';evaluate();});
+});
+
+/* sliders count once moved */
+document.querySelectorAll('input[type=range]').forEach(s=>{
+  s.addEventListener('input',()=>{s.dataset.touched='1';evaluate();});
+});
+
+/* type-and-add offerings */
+const offerInput=document.getElementById('offerInput'),offerTags=document.getElementById('offerTags');
+let offers=[];
+function renderOffers(){
+  offerTags.innerHTML='';
+  offers.forEach((o,i)=>{
+    const t=document.createElement('span');t.className='tag';
+    t.innerHTML=`${o.replace(/</g,'&lt;')} <button aria-label="remove">&times;</button>`;
+    t.querySelector('button').onclick=()=>{offers.splice(i,1);renderOffers();evaluate();};
+    offerTags.appendChild(t);
+  });
+}
+offerInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();const v=offerInput.value.trim();if(v){offers.push(v);offerInput.value='';renderOffers();evaluate();}}
+});
+
+/* answered logic + gating */
+const ansEl=document.getElementById('ans');
+const btn=document.getElementById('submitBtn'),btnText=document.getElementById('btnText');
+const val=n=>(form.querySelector(`[name=${n}]`)?.value||"").trim().length>0;
+const chips=k=>document.querySelectorAll(`.chips[data-multi=${k}] .chip.on`).length>0;
+const locationSelected=()=>[...document.querySelectorAll('.chips[data-multi=goal] .chip.on')].some(c=>c.dataset.v==='Find my location');
+function isDone(key){
+  switch(key){
+    case "1":return val('what');
+    case "2":return val('audience');
+    case "3":return chips('goal')&&(!locationSelected()||val('location'));
+    case "4":return offers.length>0;
+    case "5":return [...document.querySelectorAll('input[type=color]')].some(i=>i.dataset.touched);
+    case "6":return chips('vibe');
+    case "7":return [...document.querySelectorAll('input[type=range]')].some(i=>i.dataset.touched);
+    case "8":return val('refs');
+    case "9":return val('name')&&val('contact');
+  }
+}
+let last=-1;
+function evaluate(){
+  let n=0;
+  cards.forEach(card=>{
+    const done=isDone(card.dataset.key);
+    if(done)n++;
+    if(done&&!card.classList.contains('done')){card.classList.add('done');card.classList.remove('pulse');void card.offsetWidth;card.classList.add('pulse');}
+    else if(!done&&card.classList.contains('done')){card.classList.remove('done');}
+  });
+  if(n!==last){ansEl.textContent=n;ansEl.classList.remove('bump');void ansEl.offsetWidth;ansEl.classList.add('bump');last=n;}
+  const all=n===cards.length;
+  btn.disabled=!all;
+  btn.classList.toggle('locked',!all);
+  btnText.textContent=all?'Send it through':`Answer everything to send (${n}/9)`;
+}
+form.addEventListener('input',evaluate);
+evaluate();
+
+/* collect — all Supabase receive points */
+function collect(){
+  const g=n=>form.querySelector(`[name=${n}]`)?.value.trim()||"";
+  const multi=k=>[...document.querySelectorAll(`.chips[data-multi=${k}] .chip.on`)].map(c=>c.dataset.v);
+  const slider=k=>+document.querySelector(`[data-slider=${k}]`).value;
+  return{
+    business:g('what'),audience:g('audience'),
+    easy_actions:multi('goal'),location:g('location'),
+    offerings:[...offers],
+    colours:{main:document.querySelector('[data-color=c1]').value,second:document.querySelector('[data-color=c2]').value,accent:document.querySelector('[data-color=c3]').value},
+    vibe:multi('vibe'),
+    feel:{minimal_maximal:slider('density'),playful_serious:slider('tone'),classic_modern:slider('era'),rich_tech:slider('rich'),bright_moody:slider('mood')},
+    likes_dislikes:g('refs'),
+    show_whatsapp:multi('reach')[0]||"Show WhatsApp on site",
+    name:g('name'),whatsapp:g('contact'),
+    submitted_at:new Date().toISOString()
+  };
+}
+
+/* hearts */
+function burstHearts(){
+  const layer=document.getElementById('hearts');
+  const SVG='<svg viewBox="0 0 24 24"><path d="M12 21C12 21 4 14.5 4 9C4 6.2 6.2 4 9 4C10.6 4 12 4.9 12 4.9C12 4.9 13.4 4 15 4C17.8 4 20 6.2 20 9C20 14.5 12 21 12 21Z"/></svg>';
+  const spawn=count=>{for(let i=0;i<count;i++){const h=document.createElement('div');h.className='heart';h.innerHTML=SVG;const size=14+Math.random()*24;h.style.left=Math.random()*100+'vw';h.style.width=size+'px';h.style.height=size+'px';h.style.setProperty('--x',(Math.random()*160-80)+'px');h.style.setProperty('--r',(Math.random()*140-70)+'deg');const dur=2.6+Math.random()*1.9;h.style.animation=`floatUp ${dur}s ease-in ${Math.random()*0.7}s forwards`;layer.appendChild(h);setTimeout(()=>h.remove(),(dur+1)*1000);}};
+  spawn(30);setTimeout(()=>spawn(22),550);
+}
+
+/* submit — only via the button, only when unlocked */
+btn.addEventListener('click',async()=>{
+  if(btn.disabled)return;
+  const payload=collect();
+  btn.disabled=true;btnText.textContent='Sending...';
+  let sent=false;
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    try{
+      const headers={'apikey':SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+      if(SUPABASE_KEY.startsWith('eyJ'))headers['Authorization']='Bearer '+SUPABASE_KEY;
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`,{method:'POST',headers,body:JSON.stringify({data:payload})});
+      sent=r.ok;if(!r.ok)console.error('Supabase',r.status,await r.text());
+    }catch(err){console.error('Send failed',err);}
+  }
+  showDone(payload,sent);
+});
+
+function showDone(payload,sent){
+  form.style.display='none';
+  document.querySelector('header').style.display='none';
+  document.querySelector('.topbar').style.display='none';
+  document.getElementById('dock').style.display='none';
+  const done=document.getElementById('done');done.classList.add('show');window.scrollTo({top:0,behavior:'smooth'});
+  burstHearts();
+  if(!sent){
+    const dump=document.getElementById('dump'),copy=document.getElementById('copyBtn');
+    dump.textContent=JSON.stringify(payload,null,2);dump.style.display='block';copy.style.display='inline-block';
+    done.querySelector('p').textContent="Your brief is ready. Connect Supabase to receive these automatically, or copy them below for now.";
+    copy.onclick=()=>{navigator.clipboard.writeText(dump.textContent);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy my answers',1600);};
+  }
+}
+</script>
+</body>
+</html>
