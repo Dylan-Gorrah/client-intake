@@ -3,169 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Discovery - Boutique Form</title>
+<title>Project Discovery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-dark: #121413;
-    --charcoal: #1f2120;
-    --deep-green: #163828;
-    --accent-green: #29704e;
-    --bright-green: #38a36e;
-    --text-main: #f0f2f1;
-    --text-muted: #a3a8a5;
-    --border-color: rgba(255, 255, 255, 0.1);
+    --bg-base: #030303;
+    --card-bg: rgba(15, 17, 16, 0.4);
+    --card-border: rgba(255, 255, 255, 0.04);
+    --card-glow: rgba(56, 163, 110, 0.15);
+    
+    --accent-dark: #122b1f;
+    --accent-main: #29704e;
+    --accent-bright: #38a36e;
+    
+    --text-pure: #ffffff;
+    --text-main: #e0e0e0;
+    --text-muted: #7a7a7a;
+    
+    --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
   body {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-base);
     color: var(--text-main);
     font-family: 'Inter', sans-serif;
-    display: flex;
-    justify-content: center;
-    padding: 3rem 1rem 6rem;
     line-height: 1.6;
+    overflow-x: hidden;
   }
 
-  .form-container {
-    background-color: var(--charcoal);
-    width: 100%;
-    max-width: 650px;
-    padding: 3rem 2.5rem;
+  /* Moody Ambient Background */
+  .ambient-glow {
+    position: fixed;
+    top: -20vh;
+    left: -10vw;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(41, 112, 78, 0.08) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    animation: drift 15s infinite alternate ease-in-out;
+  }
+  .ambient-glow.two {
+    top: auto;
+    bottom: -20vh;
+    left: auto;
+    right: -10vw;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(0,0,0,0) 70%);
+    animation-delay: -7s;
+  }
+
+  @keyframes drift {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(5vw, 5vh) scale(1.1); }
+  }
+
+  /* Layout */
+  .wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1.5rem 8rem;
+  }
+
+  /* Hero Section */
+  .hero {
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-top: 4rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1s var(--transition-smooth) forwards;
+  }
+
+  .hero-icon {
+    width: 40px;
+    height: 40px;
+    stroke: var(--accent-bright);
+    stroke-width: 1.5;
+    fill: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--text-pure);
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent-bright);
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    max-width: 400px;
+  }
+
+  /* Cards */
+  .q-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border-color);
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: var(--transition-smooth);
+    opacity: 0;
+    transform: translateY(30px);
   }
 
-  .form-header { text-align: center; margin-bottom: 2.5rem; }
-  .form-header h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; }
-  .form-header p { color: var(--text-muted); font-size: 0.95rem; }
+  .q-card.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-  .q-block { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
-  .q-block:last-of-type { border-bottom: none; }
+  .q-card:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--card-glow);
+  }
+
+  /* Card Headers */
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .q-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--accent-bright);
+    font-style: italic;
+    line-height: 1;
+    opacity: 0.8;
+  }
+
+  .q-title-wrap { flex: 1; }
   
-  .q-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.2rem; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
-  .q-title span { color: var(--bright-green); font-size: 0.9rem; font-weight: 500; }
-  .q-hint { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; }
+  .q-title {
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--text-pure);
+    margin-bottom: 0.3rem;
+  }
 
-  /* Inputs & Textareas */
+  .q-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  .q-icon {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-muted);
+    stroke-width: 1.5;
+    fill: none;
+    margin-top: 2px;
+  }
+
+  /* Inputs */
   input[type="text"], textarea {
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    border: 2px solid transparent;
-    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-pure);
     font-size: 1rem;
-    padding: 1rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    padding: 1rem 1.2rem;
+    border-radius: 8px 8px 0 0;
+    transition: var(--transition-smooth);
     font-family: inherit;
     margin-bottom: 0.5rem;
   }
-  textarea { resize: vertical; min-height: 90px; }
+  
+  textarea { resize: vertical; min-height: 100px; }
+  
   input:focus, textarea:focus {
-    outline: none; border-color: var(--accent-green); background: rgba(22, 56, 40, 0.2);
+    outline: none;
+    border-color: transparent;
+    border-bottom-color: var(--accent-bright);
+    background: rgba(41, 112, 78, 0.05);
   }
 
-  /* Interactive Chips */
-  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
   .chip {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-muted);
-    padding: 10px 16px;
+    padding: 10px 18px;
     border-radius: 100px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 400;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition-smooth);
     user-select: none;
   }
-  .chip:hover { border-color: var(--accent-green); }
+  
+  .chip:hover { border-color: rgba(255, 255, 255, 0.3); color: var(--text-main); }
+  
   .chip.active {
-    background: rgba(41, 112, 78, 0.15);
-    border-color: var(--bright-green);
-    color: var(--bright-green);
+    background: var(--accent-dark);
+    border-color: var(--accent-bright);
+    color: var(--accent-bright);
+    box-shadow: 0 0 15px rgba(56, 163, 110, 0.2);
   }
 
-  /* Conditional Location Input */
-  #location-wrap { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease; }
-  #location-wrap.show { max-height: 60px; opacity: 1; margin-top: 10px; }
+  /* Location Wrap */
+  #location-wrap { max-height: 0; overflow: hidden; opacity: 0; transition: var(--transition-smooth); }
+  #location-wrap.show { max-height: 80px; opacity: 1; margin-top: 15px; }
 
-  /* Type-and-Add Tags */
-  .taglist { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  /* Taglist (Offerings) */
+  .taglist { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
   .taglist:empty { display: none; }
   .tag {
-    display: inline-flex; align-items: center; gap: 8px; background: var(--deep-green); 
-    color: var(--text-main); padding: 6px 12px; border-radius: 100px; font-size: 0.9rem; border: 1px solid var(--accent-green);
+    display: inline-flex; align-items: center; gap: 8px; 
+    background: rgba(255, 255, 255, 0.05); color: var(--text-main); 
+    padding: 6px 14px; border-radius: 100px; font-size: 0.85rem; 
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
-  .tag button { background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.1rem; opacity: 0.7; }
-  .tag button:hover { opacity: 1; }
+  .tag button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+  .tag button:hover { color: #ff4a4a; }
 
   /* Sliders */
-  .sliders { display: flex; flex-direction: column; gap: 1.5rem; }
+  .sliders { display: flex; flex-direction: column; gap: 1.8rem; margin-top: 1rem; }
   .slider-row { width: 100%; }
-  .slider-labels { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+  .slider-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  
   input[type="range"] {
-    -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: var(--border-color); outline: none;
+    -webkit-appearance: none; width: 100%; height: 2px; background: rgba(255, 255, 255, 0.1); outline: none; border-radius: 2px;
   }
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
-    background: var(--charcoal); border: 3px solid var(--bright-green); cursor: pointer; transition: transform 0.1s;
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--text-pure); border: 2px solid var(--bg-base); 
+    cursor: pointer; transition: 0.2s; box-shadow: 0 0 10px var(--accent-bright);
   }
-  input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.3); }
 
   /* Color Pickers */
-  .color-pickers { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-  .color-picker-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-  .color-picker-wrapper span { font-size: 0.8rem; color: var(--text-muted); }
+  .color-pickers { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1rem; }
+  .color-picker-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; }
+  .color-picker-wrapper span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;}
   input[type="color"] {
-    -webkit-appearance: none; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; background: none;
+    -webkit-appearance: none; border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; background: none;
   }
   input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-  input[type="color"]::-webkit-color-swatch { border: 2px solid var(--border-color); border-radius: 50%; }
+  input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; transition: var(--transition-smooth); }
+  input[type="color"]:hover::-webkit-color-swatch { border-color: rgba(255,255,255,0.5); transform: scale(1.05); }
 
   /* Submit Button */
-  button.submit-btn {
-    width: 100%; padding: 1.2rem; background: linear-gradient(135deg, var(--deep-green), var(--accent-green));
-    color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;
-    transition: all 0.3s ease; margin-top: 1rem;
+  .submit-wrap {
+    text-align: center;
+    margin-top: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
   }
-  button.submit-btn:hover { background: linear-gradient(135deg, var(--accent-green), var(--bright-green)); transform: translateY(-2px); }
-  button.submit-btn:disabled { background: var(--border-color); color: var(--text-muted); cursor: not-allowed; transform: none; }
+  
+  .submit-wrap.in-view { opacity: 1; transform: translateY(0); transition: var(--transition-smooth); transition-delay: 0.2s; }
 
-  .success-msg { display: none; text-align: center; margin-top: 1.5rem; }
-  .success-msg h3 { color: var(--bright-green); margin-bottom: 0.5rem; }
-  .success-msg p { color: var(--text-muted); font-size: 0.9rem; }
+  button.submit-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 1.2rem 3rem; background: var(--text-pure);
+    color: var(--bg-base); border: none; border-radius: 100px; 
+    font-size: 1rem; font-weight: 500; cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+  
+  button.submit-btn:hover { background: var(--accent-bright); color: var(--text-pure); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(56, 163, 110, 0.2); }
+  button.submit-btn:disabled { background: rgba(255,255,255,0.1); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-icon { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+  /* Success State */
+  .success-msg { display: none; text-align: center; margin-top: 3rem; animation: fadeUp 1s forwards; }
+  .success-icon { width: 60px; height: 60px; stroke: var(--accent-bright); stroke-width: 1; fill: none; margin-bottom: 1.5rem; }
+  .success-msg h3 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--text-pure); margin-bottom: 0.5rem; font-weight: 400; }
+  .success-msg p { color: var(--text-muted); font-size: 1.1rem; font-weight: 300; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .q-card { padding: 1.8rem 1.5rem; }
+    .hero { min-height: 40vh; padding-top: 2rem; }
+  }
 </style>
 </head>
 <body>
 
-<div class="form-container">
-  <div class="form-header">
-    <h2>Your <em>vibe</em>.</h2>
+<div class="ambient-glow"></div>
+<div class="ambient-glow two"></div>
+
+<div class="wrapper">
+  
+  <div class="hero">
+    <svg class="hero-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    <h1>Your <em>vibe</em>.</h1>
     <p>Nine quick questions. No wrong answers.</p>
   </div>
 
   <form id="discovery-form">
     
-    <div class="q-block">
-      <div class="q-title"><span>01</span> What does your business do?</div>
-      <div class="q-hint">Like you'd tell a mate who has no idea.</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">01</div>
+        <div class="q-title-wrap">
+          <div class="q-title">What does your business do?</div>
+          <div class="q-hint">Like you'd tell a mate who has no idea.</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </div>
       <textarea id="q1-what" placeholder="We..." required></textarea>
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>02</span> Who's your target?</div>
-      <div class="q-hint">What kinds of people are looking for you?</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">02</div>
+        <div class="q-title-wrap">
+          <div class="q-title">Who's your target?</div>
+          <div class="q-hint">What kinds of people are looking for you?</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      </div>
       <textarea id="q2-audience" placeholder="People who..." required></textarea>
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>03</span> What should be easy for them?</div>
-      <div class="q-hint">Pick what fits. More than one is fine.</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">03</div>
+        <div class="q-title-wrap">
+          <div class="q-title">What should be easy for them?</div>
+          <div class="q-hint">Pick what fits. More than one is fine.</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+      </div>
       <div class="chips" data-multi="goal">
         <div class="chip" data-value="Contact me easily">Contact me easily</div>
         <div class="chip" data-value="Find my location" id="loc-chip">Find my location</div>
@@ -179,26 +370,44 @@
       </div>
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>04</span> List the things you offer.</div>
-      <div class="q-hint">Type one and press enter. Add as many as you like.</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">04</div>
+        <div class="q-title-wrap">
+          <div class="q-title">List the things you offer.</div>
+          <div class="q-hint">Type one and press enter. Add as many as you like.</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+      </div>
       <div class="taglist" id="offerTags"></div>
       <input type="text" id="offerInput" placeholder="e.g. Haircuts, then enter">
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>05</span> Your colours.</div>
-      <div class="q-hint">Pick 3 colors that feel right for you.</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">05</div>
+        <div class="q-title-wrap">
+          <div class="q-title">Your colours.</div>
+          <div class="q-hint">Pick 3 colors that feel right for you.</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+      </div>
       <div class="color-pickers">
         <div class="color-picker-wrapper"><input type="color" id="c1" value="#29704e"><span>Main</span></div>
-        <div class="color-picker-wrapper"><input type="color" id="c2" value="#1f2120"><span>Second</span></div>
-        <div class="color-picker-wrapper"><input type="color" id="c3" value="#f0f2f1"><span>Accent</span></div>
+        <div class="color-picker-wrapper"><input type="color" id="c2" value="#121413"><span>Second</span></div>
+        <div class="color-picker-wrapper"><input type="color" id="c3" value="#e0e0e0"><span>Accent</span></div>
       </div>
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>06</span> If your site walked into a room...</div>
-      <div class="q-hint">how would it carry itself?</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">06</div>
+        <div class="q-title-wrap">
+          <div class="q-title">If your site walked into a room...</div>
+          <div class="q-hint">how would it carry itself?</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+      </div>
       <div class="chips" data-multi="vibe">
         <div class="chip" data-value="Calm and clean">Calm and clean</div>
         <div class="chip" data-value="Bold and loud">Bold and loud</div>
@@ -211,9 +420,15 @@
       </div>
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>07</span> Where does it sit?</div>
-      <div class="q-hint">Drag each one. Minimal means straight to the point, maximal means wordy.</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">07</div>
+        <div class="q-title-wrap">
+          <div class="q-title">Where does it sit?</div>
+          <div class="q-hint">Drag each one. Minimal means straight to the point, maximal means wordy.</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+      </div>
       <div class="sliders">
         <div class="slider-row"><div class="slider-labels"><span>Minimal</span><span>Maximal</span></div><input type="range" id="s-density" min="0" max="100" value="35"></div>
         <div class="slider-row"><div class="slider-labels"><span>Playful</span><span>Serious</span></div><input type="range" id="s-tone" min="0" max="100" value="55"></div>
@@ -223,16 +438,28 @@
       </div>
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>08</span> Anything you love or hate?</div>
-      <div class="q-hint">Hating a site that talks too much, loving sharp edges and smooth motion.</div>
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">08</div>
+        <div class="q-title-wrap">
+          <div class="q-title">Anything you love or hate?</div>
+          <div class="q-hint">Hating a site that talks too much, loving sharp edges and smooth motion.</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </div>
       <textarea id="q8-refs" placeholder="Love: sharp cards, smooth fades...   Avoid: clutter, too much text..."></textarea>
     </div>
 
-    <div class="q-block">
-      <div class="q-title"><span>09</span> Your contact details.</div>
-      <div class="q-hint">Should your WhatsApp number show on the site, or stay private?</div>
-      <div class="chips" data-multi="reach" data-single="true">
+    <div class="q-card">
+      <div class="q-header">
+        <div class="q-num">09</div>
+        <div class="q-title-wrap">
+          <div class="q-title">Your contact details.</div>
+          <div class="q-hint">Should your WhatsApp number show on the site, or stay private?</div>
+        </div>
+        <svg class="q-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+      </div>
+      <div class="chips" data-multi="reach" data-single="true" style="margin-bottom: 1.5rem;">
         <div class="chip active" data-value="Show WhatsApp on site">Show WhatsApp on site</div>
         <div class="chip" data-value="Keep it private">Keep it private</div>
       </div>
@@ -240,9 +467,15 @@
       <input type="text" id="q9-contact" placeholder="WhatsApp number" required>
     </div>
 
-    <button type="submit" class="submit-btn" id="submit-btn">Send Project Details</button>
+    <div class="submit-wrap q-card" style="background: transparent; border: none; padding: 0;">
+      <button type="submit" class="submit-btn" id="submit-btn">
+        Submit Brief
+        <svg class="btn-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </button>
+    </div>
     
     <div class="success-msg" id="success-msg">
+      <svg class="success-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <h3>Got it, thank you.</h3>
       <p>Your brief is in. I'll build a demo that fits the vibe and get back to you.</p>
     </div>
@@ -250,6 +483,18 @@
 </div>
 
 <script>
+  // --- SCROLL REVEAL ANIMATIONS ---
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+  document.querySelectorAll('.q-card, .submit-wrap').forEach(el => observer.observe(el));
+
   // --- MULTI & SINGLE CHIP LOGIC ---
   document.querySelectorAll('.chips').forEach(container => {
     const isSingle = container.dataset.single === 'true';
@@ -297,7 +542,7 @@
 
   offerInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Stop form submission
+      e.preventDefault();
       const val = offerInput.value.trim();
       if (val) {
         offers.push(val);
@@ -319,9 +564,8 @@
     const msg = document.getElementById('success-msg');
     
     btn.disabled = true;
-    btn.textContent = 'Sending...';
+    btn.innerHTML = 'Sending... <svg class="btn-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
 
-    // Gather Exact Data Structure from Original Script
     const payload = {
       business: document.getElementById('q1-what').value,
       audience: document.getElementById('q2-audience').value,
@@ -348,7 +592,6 @@
       submitted_at: new Date().toISOString()
     };
 
-    // Send to Supabase
     try {
       const response = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
         method: 'POST',
@@ -363,18 +606,19 @@
 
       if (response.ok) {
         msg.style.display = 'block';
-        btn.style.display = 'none';
-        // Hide form inputs for a clean "Done" state like the original
-        document.querySelectorAll('.q-block').forEach(el => el.style.display = 'none');
+        btn.parentElement.style.display = 'none';
+        document.querySelectorAll('.q-card').forEach(el => el.style.display = 'none');
+        document.querySelector('.hero').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         console.error('Submission failed', await response.text());
         btn.disabled = false;
-        btn.textContent = 'Error. Try Again.';
+        btn.innerHTML = 'Error. Try Again.';
       }
     } catch (error) {
       console.error('Network Error', error);
       btn.disabled = false;
-      btn.textContent = 'Error. Try Again.';
+      btn.innerHTML = 'Error. Try Again.';
     }
   });
 </script>
